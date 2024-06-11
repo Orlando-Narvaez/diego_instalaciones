@@ -12,21 +12,27 @@ class AgregarCitaPagina extends StatefulWidget {
 
 class _AgregarCitaPaginaEstado extends State<AgregarCitaPagina> {
   final _formKey = GlobalKey<FormState>();
+  String _empresa = 'Volkswagen';
   String _nombre = '';
   String _telefono = '';
   String _placa = '';
   String _descripcion = '';
   DateTime _fechaHora = DateTime.now();
+  String _lugar = '';
+  TimeOfDay _hora = TimeOfDay.now();
 
   @override
   void initState() {
     super.initState();
     if (widget.cita != null) {
+      _empresa = widget.cita!.empresa;
       _nombre = widget.cita!.nombre;
       _telefono = widget.cita!.telefono;
       _placa = widget.cita!.placa;
       _descripcion = widget.cita!.descripcion;
       _fechaHora = widget.cita!.fechaHora;
+      _lugar = widget.cita!.lugar;
+      _hora = widget.cita!.hora;
     }
   }
 
@@ -42,6 +48,21 @@ class _AgregarCitaPaginaEstado extends State<AgregarCitaPagina> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
+              DropdownButtonFormField<String>(
+                value: _empresa,
+                decoration: InputDecoration(labelText: 'Empresa'),
+                items: ['Volkswagen', 'Las otras', 'Ninguna']
+                    .map((label) => DropdownMenuItem(
+                          child: Text(label),
+                          value: label,
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _empresa = value!;
+                  });
+                },
+              ),
               TextFormField(
                 initialValue: _nombre,
                 decoration: InputDecoration(labelText: 'Nombre'),
@@ -88,11 +109,28 @@ class _AgregarCitaPaginaEstado extends State<AgregarCitaPagina> {
                   _descripcion = value!;
                 },
               ),
-              SizedBox(height: 20),
+              TextFormField(
+                initialValue: _lugar,
+                decoration: InputDecoration(labelText: 'Lugar'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingresa un lugar';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _lugar = value!;
+                },
+              ),
               ListTile(
                 title: Text('Fecha: ${_fechaHora.toLocal()}'.split(' ')[0]),
                 trailing: Icon(Icons.calendar_today),
                 onTap: _seleccionarFecha,
+              ),
+              ListTile(
+                title: Text('Hora: ${_hora.format(context)}'),
+                trailing: Icon(Icons.access_time),
+                onTap: _seleccionarHora,
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -100,11 +138,14 @@ class _AgregarCitaPaginaEstado extends State<AgregarCitaPagina> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     final nuevaCita = Cita(
+                      empresa: _empresa,
                       nombre: _nombre,
                       telefono: _telefono,
                       placa: _placa,
                       descripcion: _descripcion,
                       fechaHora: _fechaHora,
+                      lugar: _lugar,
+                      hora: _hora,
                     );
                     Navigator.pop(context, nuevaCita);
                   }
@@ -129,6 +170,19 @@ class _AgregarCitaPaginaEstado extends State<AgregarCitaPagina> {
     if (fechaSeleccionada != null && fechaSeleccionada != _fechaHora) {
       setState(() {
         _fechaHora = fechaSeleccionada;
+      });
+    }
+  }
+
+  _seleccionarHora() async {
+    TimeOfDay? horaSeleccionada = await showTimePicker(
+      context: context,
+      initialTime: _hora,
+    );
+
+    if (horaSeleccionada != null && horaSeleccionada != _hora) {
+      setState(() {
+        _hora = horaSeleccionada;
       });
     }
   }

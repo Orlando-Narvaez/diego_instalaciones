@@ -29,9 +29,13 @@ class _PaginaCitasEstado extends State<PaginaCitas> {
                       return ListTile(
                         title: Text(cita.nombre),
                         subtitle: Text(
-                            '${cita.fechaHora.toLocal()}'.split(' ')[0] +
-                            ' - ' +
-                            cita.descripcion),
+                          'Empresa: ${cita.empresa}\n' +
+                          '${cita.fechaHora.toLocal()}'.split(' ')[0] +
+                          ' - ' + 
+                          cita.descripcion + '\n' + 
+                          'Lugar: ' + cita.lugar + '\n' +
+                          'Hora: ' + cita.hora.format(context)
+                        ),
                         onTap: () {
                           setState(() {
                             _citaSeleccionada = cita;
